@@ -1,0 +1,58 @@
+name: No_1_ImplementationPhase_ImplementModel
+on:
+  workflow_call:
+    outputs:
+      summary:
+        value: ${{jobs.No_1_ImplementationPhase_ImplementModel.outputs.summary}}
+    secrets:
+      WRITE_WORKFLOW:
+        required: true
+jobs:
+  No_1_ImplementationPhase_ImplementModel:
+    runs-on: ubuntu-20.04
+    outputs:
+      summary: ${{steps.outputStep.outputs.summary}}
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.WRITE_WORKFLOW }}
+      - name: set STMD Folder path
+        run: echo 'STMDFOLDERPATH=/home/runner/work/gaiax-ci/gaiax-ci' >> $GITHUB_ENV && echo $STMDFOLDERPATH
+      - name: activate required python version at simple processing element
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Create lib environment, reset all libs
+        run: | 
+                pip freeze | xargs -r pip uninstall -y
+                
+      - name: install python requirements, if necessary
+        run: | 
+                [ -f /home/runner/work/gaiax-ci/gaiax-ci/processing_functions/python_functions/requirements.txt ] && pip install -r /home/runner/work/gaiax-ci/gaiax-ci/processing_functions/python_functions/requirements.txt
+                
+      - name: join_and_sort_data
+        run: res=$(python -c 'import sys; sys.path.append("/home/runner/work/gaiax-ci/gaiax-ci/workflow_utils/wrapper"); from fcnWrapperPython import wrapper; result = wrapper("./processing_functions/python_functions/utilities", "join_sort_unique", ["array2","array1"], ["./data/my_testdata.txt","[4, 8, 7, 5, 4]"], ["file","inline"], "/home/runner/work/gaiax-ci/gaiax-ci", {"id":"join_and_sort_data"}, False); print(result)') && echo $res && mkdir -p /home/runner/work/gaiax-ci/gaiax-ci/data && echo $res > /home/runner/work/gaiax-ci/gaiax-ci/data/merged_data.txt
+      - name: activate required python version 3.12 for metric
+          ./quality_metrics/python_metrics/fmu_metrics/check_model_description
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Create lib environment, reset all libs
+        run: | 
+            pip freeze | xargs -r pip uninstall -y
+            
+      - name: install python requirements, if necessary
+        run: | 
+            [ -f /home/runner/work/gaiax-ci/gaiax-ci/quality_metrics/python_metrics/requirements.txt ] && pip install -r /home/runner/work/gaiax-ci/gaiax-ci/quality_metrics/python_metrics/requirements.txt
+            
+      - name: execute test implementation_fmu_modeldesc_test
+        run: res=$(python -c 'import sys; sys.path.append("/home/runner/work/gaiax-ci/gaiax-ci/workflow_utils/wrapper"); from fcnWrapperPython import wrapper; result = wrapper("./quality_metrics/python_metrics/fmu_metrics", "check_model_description", ["fmu_path"], ["/home/runner/work/gaiax-ci/gaiax-ci/data/sl-1-3-object-based-generic-perception-object-model.fmu"], ["path"], "/home/runner/work/gaiax-ci/gaiax-ci", {"level":"1","id":"implementation_fmu_modeldesc_test"}); print(result)') && echo $res && node /home/runner/work/gaiax-ci/gaiax-ci/workflow_utils/results.js -p "$res" -o No.1.ImplementationPhase.ImplementModel.cdkResult.json
+      - name: show report
+        run: cat No.1.ImplementationPhase.ImplementModel.cdkResult.json
+      - name: send to outputs
+        id: outputStep
+        run: echo "summary=$(cat
+          No.1.ImplementationPhase.ImplementModel.cdkResult.json)" >>
+          $GITHUB_OUTPUT
