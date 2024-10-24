@@ -1,0 +1,2 @@
+npm install ./processing_functions/node_functions/util/veri-sign --prefix ./processing_functions/node_functions/util/veri-sign
+npm install ./processing_functions/node_functions/util/util-common --prefix ./processing_functions/node_functions/util/util-common

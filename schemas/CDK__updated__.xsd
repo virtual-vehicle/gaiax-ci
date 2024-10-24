@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+    vc:minVersion="1.1" 
+    xmlns:cdk="http://example.com/CredibilityDevelopmentKit"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    targetNamespace="http://example.com/CredibilityDevelopmentKit">
+
+    <xs:import namespace="http://www.w3.org/1999/xlink" schemaLocation="https://www.w3.org/XML/2008/06/xlink.xsd"/>
+    
+    <xs:element name="Credibility">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Processing" minOccurs="0" maxOccurs="unbounded" type="cdk:ProcessingType"/>
+                <xs:element name="Evidence" minOccurs="1" maxOccurs="unbounded" type="cdk:EvidenceType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="EvidenceType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to collect metrics that serve as evidence for fulfilling a specific credibility 
+                level.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Metric" minOccurs="1" maxOccurs="unbounded" type="cdk:MetricType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to indicate that a metric from the Credibility Development Kit is used 
+                        as supporting evidence for the corresponding credibility level.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="level" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute is used to indicate the credibility level of the metric. Must be 1,2 or 3.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:integer">
+                    <xs:enumeration value="1"/>
+                    <xs:enumeration value="2"/>
+                    <xs:enumeration value="3"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="MetricType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to define a function of the Credibility Development Kit to be used.
+                The VerificationType defines the context (subset and level) to localize the correct module.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="Test" minOccurs="1" maxOccurs="unbounded" type="cdk:TestType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to define one execution of the given function.                    
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="module" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute is used to indicate the URI of the module that exports the metric.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="interpreter" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attributes gives information which interpreter to use for the module. Currently the
+                    Javascript RTE Node.js and the Python interpreter is supported.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="nodejs"/>
+                    <xs:enumeration value="python"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="interpreterVersion" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attributes is indicating the version identifier of the according interpreter,
+                    for instance "16.14.0" to be used for Node.js version 16.14.0 or "3.8.10" for Python
+                    version 3.8.10.
+                    The supported syntax fore Node.js versions can be looked up here: 
+                    https://github.com/actions/setup-node?tab=readme-ov-file#supported-version-syntax
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="function" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute indicates the name of the function from the target module.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="TestType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to define one execution of a function. A TestType must contain FunctionArgument
+                elements as child elements that map                
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="FunctionArgument" minOccurs="1" maxOccurs="unbounded" type="cdk:ArgumentType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to define an argument of the function defined in a parent element.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Return" minOccurs="0" maxOccurs="1" type="cdk:FunctionOutputType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element can optionally be defined to write the result of the test to a file.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies a unique identification of the test execution.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ArgumentType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to map a file to a function argument of the function that has been
+                defined in a parent element.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the name of the argument as used in the target function.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="method" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies if the input content it fed inline via the "content" attribute or by means of a specified file source.
+                    - "inline": The content of the attribute "content" will be used as an input to the function argument.
+                    - "path": The path, specified in the "source" argument must be passed as an input to the function argument.
+                    - "file": The content of a file, specified in the "source" argument must be passed as an input to the function argument.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="inline"/>
+                    <xs:enumeration value="file"/>
+                    <xs:enumeration value="path"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the MIME type of the file that shall be used as a function
+                    argument. The file type must be convertible to a string, i.e. no binary data should be used.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="source" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute must be used if method="file" or method="path" is used and indicates the source of the file that shall
+                    be used as a function argument as an URI (cf. RFC 3986).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="content" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute must be used if method="inline" is used and indicated the content of the input argument
+                    to be used in the target function
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert test="(@method = 'inline' and exists(@content) and not(exists(@source))) or (@method = 'file' and exists(@source) and exists(@type) and not(exists(@content))) else false()"/>
+    </xs:complexType>
+
+    <xs:complexType name="ProcessingType">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="SimpleProcessing" type="cdk:SimpleProcessingType" maxOccurs="1"/>
+                <xs:element name="ComplexProcessing" type="cdk:ComplexProcessingType" maxOccurs="1"/>
+            </xs:choice>
+            <xs:element name="Prerequisites" minOccurs="0" maxOccurs="unbounded" type="cdk:ProcessingPrerequisitesType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Defines the prerequisites to run before processing
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Inputs" minOccurs="0" maxOccurs="1" type="cdk:InputsType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element lists all the inputs for the function
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Outputs" minOccurs="0" maxOccurs="1" type="cdk:OutputsType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to specify the output of the processing step
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="description" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    Can be used to add a description what is happening in this step
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SimpleProcessingType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to define a simple processing step of data by using adapters or utils
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="module" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute is used to indicate the package URI of the Credibility Development Kit, i.e.
+                    an adapter package
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="interpreter" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attributes gives information which interpreter to use for the module. Currently the
+                    Javascript RTE Node.js and the Python interpreter is supported.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="nodejs"/>
+                    <xs:enumeration value="python"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="interpreterVersion" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attributes is indicating the version identifier of the according interpreter,
+                    for instance "16.14.0" to be used for Node.js version 16.14.0 or "3.8.10" for Python
+                    version 3.8.10.
+                    The supported syntax fore Node.js versions can be looked up here: 
+                    https://github.com/actions/setup-node?tab=readme-ov-file#supported-version-syntax
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="function" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute indicates the name of the function from the Credibility Development Kit
+                    within the specific package.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>  
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This optional attribute specifies a unique identification of the processing
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ComplexProcessingType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to define complex processing steps of data using node.js scripts or a github action
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="interpreter" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the type of complex processing. Currently the following methods are supported "nodejs": Specify a script that runs
+                    in a node.js environment; "github-action": Specify the identifier of a github action script that runs in a github actions pipeline
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="nodejs"/>
+                    <xs:enumeration value="python"/>
+                    <xs:enumeration value="shell"/>
+                    <xs:enumeration value="github-action"/>
+                    <xs:enumeration value="specific">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                No predefined solution, instead the definition is supplier- or customer-specific, e.g.
+                                if a specifc proprietary simulatation tool is to be used, which is not accessible like 
+                                an open source simulation tool (e.g., openmcx or esmini)
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="interpreterVersion" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    To be used if interpreter is selected to "nodejs" or "python".
+                    This attributes is indicating the version identifier of the according interpreter,
+                    for instance "16.14.0" to be used for Node.js version 16.14.0 or "3.8.10" for Python
+                    version 3.8.10.
+                    The supported syntax fore Node.js versions can be looked up here: 
+                    https://github.com/actions/setup-node?tab=readme-ov-file#supported-version-syntax
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="source" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute defines the the path to the node.js script to be used (in case method=="nodejs") or the identifier
+                    for the github action (in case method=="github-action")
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="description" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute defines a non-predefined solution (if method=="specific") for the complex processing step,
+                    e.g. "use the given FMU with ID #fmu1 and simulate 10 seconds with an ODE1 solver in Ubuntu 22.04 (64 bit). The stimuli are defined in the inputs."
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This optional attribute specifies a unique identification of the processing
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert test="(@method = 'specific' and exists(@description) and not(exists(@source))) or (not(@method = 'specific') and exists(@source) and not(exists(@description))) else false()"/>
+    </xs:complexType>
+
+    <xs:complexType name="ProcessingPrerequisitesType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to define the prerequisites prior to running a processing step, by indicating a shell script.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="source" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This attribute is used to define the shell script that installs the prerequisites for a processing step
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="InputsType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to collect single FunctionArguments as inputs for the specific processing function
+            </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="FunctionArgument" minOccurs="0" maxOccurs="unbounded" type="cdk:ArgumentType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to define an argument of the function defined in a parent element.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="CommandLineArgument" minOccurs="0" maxOccurs="unbounded" type="cdk:CommandLineInputType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to define a command line argument
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Input" minOccurs="0" maxOccurs="unbounded" type="cdk:GenericInputType">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is used to define an argument of the function defined in a parent element.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="description" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    Can be used to add a description what is happening in this step
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="OutputsType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to collect outputs from a processing function or a complex processing step
+            </xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:element name="Return" type="cdk:FunctionOutputType" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is to be used in case of a single function return
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="Output" type="cdk:GenericOutputType" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This element is to be used if a complex processing step does not only yield a simple return, but
+                        can output multiple returns that might need further description on how to interpret 
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="description" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    Can be used to add a description what is happening in this step
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="FunctionOutputType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to specify the output of the processing step (file type and target path)
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the MIME type of the file that is generated as output of
+                    the function. The file type must be convertible to a string, i.e. no binary data should be used.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="path" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the location where the output of the function shall be saved.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="GenericOutputType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to specify the output of the processing step in case a complex processing step 
+                does not only yield a simple return, but can output multiple returns that might need further description
+                on how to interpret, e.g., if a simulation returns multiple result files and a log file, etc.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="description" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute describes how the output is to be interpreted
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the MIME type of the file that is generated as output of
+                    the function. The file type must be convertible to a string, i.e. no binary data should be used.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="path" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the location where the output of the function shall be saved.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="CommandLineInputType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to specify inputs that are used in the command line
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="flag" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the command flag (like "-s"). 
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="argument" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This optional attribute specifies the argument (like "./file.sh" after a flag like "-f").
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This optional attribute specifies the type of the argument, e.g. if the argument is a path
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="GenericInputType">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                This element is used to specify an input to a complex processing step, that does not only expects to 
+                have specific function argument fulfilled and need further description on how to interpret the input,
+                e.g. a configuration file of a proprietary simulation tool.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="description" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute describes how the input is to be interpreted
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the MIME type of the file that is used as input.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="path" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation xml:lang="en">
+                    This mandatory attribute specifies the location where the input is located.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

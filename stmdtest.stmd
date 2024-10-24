@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stmd:SimulationTaskMetaData xmlns:stmd="http://apps.pmsf.net/STMD/SimulationTaskMetaData"
+  xmlns:stc="http://apps.pmsf.net/SSPTraceability/SSPTraceabilityCommon"
+  xmlns:ssc="http://ssp-standard.org/SSP1/SystemStructureCommon"
+  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://apps.pmsf.net/STMD/SimulationTaskMetaData https://raw.githubusercontent.com/PMSFIT/SSPTraceability/v1.0-beta2/STMD.xsd"
+  version="0.1.0" name="ARS 548 Radar Modeling Task" GUID="c3aea52c-2073-4fa6-977b-976286c1ac43"
+  description="GAIA-X Pipeline Test" author="Maurizio Ahmann" fileversion="1.0"
+  generationTool="SETLabs STMD Writer" generationDateAndTime="2024-06-10T08:24:00Z">
+  <stmd:GeneralInformation>
+    <stc:DerivationChain>
+      <stc:DerivationChainEntry GUID="2c34d92b-6782-4097-991b-a2507826f948" />
+    </stc:DerivationChain>
+  </stmd:GeneralInformation>
+  <stmd:RequirementsPhase>
+    <stmd:DefineModelRequirements>
+      <stc:Rationale>
+        <stc:Resource kind="rationale" type="text/xml" id="credibility-model-requirements">
+          <stc:Content>
+            <cdk:Credibility>
+              <cdk:Processing>
+                <cdk:Prerequisites source="./processing_functions/prerequisites/install_node_utilities.sh" />
+              </cdk:Processing>
+              <cdk:Evidence level="1">
+                <cdk:Metric
+                  module="./quality_metrics/node_metrics/level_1"
+                  function="checkSingleSemantic"
+                  interpreter="nodejs"
+                  interpreterVersion="18.17.0">
+                  <cdk:Test id="requirement_check_001">
+                    <cdk:FunctionArgument
+                      name="x509Certificate"
+                      method="file"
+                      type="application/x-x509-ca-cert"
+                      content="./data/cert_ahmann.crt"/>
+                    <cdk:FunctionArgument
+                      name="signedExpertStatement"
+                      method="file"
+                      type="application/json"
+                      content="./data/expertStatement_req_m_01.json" />                      
+                  </cdk:Test>
+                </cdk:Metric>
+              </cdk:Evidence>
+            </cdk:Credibility>
+          </stc:Content>
+        </stc:Resource>
+      </stc:Rationale>
+    </stmd:DefineModelRequirements>
+  </stmd:RequirementsPhase>
+  <stmd:ImplementationPhase>
+    <stmd:ImplementModel>
+      <stc:Rationale>
+        <stc:Resource kind="rationale" type="text/xml" id="credibility-model-implementation">
+          <stc:Content>
+            <cdk:Credibility>
+              <cdk:Processing>
+                <cdk:SimpleProcessing
+                  interpreter="python"
+                  interpreterVersion="3.12"
+                  module="./processing_functions/python_functions/utilities"
+                  function="join_sort_unique"
+                  id="join_and_sort_data" />
+                <cdk:Inputs>
+                  <cdk:FunctionArgument
+                    name="array2"
+                    method="file"
+                    type="text/plain"
+                    content="./data/my_testdata.txt" />
+                  <cdk:FunctionArgument
+                    name="array1"
+                    method="inline"
+                    content="[4, 8, 7, 5, 4]" />
+                </cdk:Inputs>
+                <cdk:Outputs>
+                  <cdk:Return
+                    type="text/plain"
+                    path="./data/merged_data.txt" />
+                </cdk:Outputs>
+              </cdk:Processing>
+              <cdk:Evidence level="1">
+                <cdk:Metric
+                  module="./quality_metrics/python_metrics/fmu_metrics"
+                  function="check_model_description"
+                  interpreter="python"
+                  interpreterVersion="3.12">
+                  <cdk:Test id="implementation_fmu_modeldesc_test">
+                    <cdk:FunctionArgument
+                      name="fmu_path"
+                      method="path"
+                      content="./data/sl-1-3-object-based-generic-perception-object-model.fmu"/>
+                  </cdk:Test>
+                </cdk:Metric>
+              </cdk:Evidence>
+            </cdk:Credibility>
+          </stc:Content>
+        </stc:Resource>
+      </stc:Rationale>
+    </stmd:ImplementModel>
+  </stmd:ImplementationPhase>
+</stmd:SimulationTaskMetaData>
