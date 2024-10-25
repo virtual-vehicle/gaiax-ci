@@ -8,7 +8,8 @@ const {
     ROOT_ELEMENT_NAME,
     LIFECYCLE_PARENT_NAME,
     LIFECYCLE_ENTRY_NAMES,
-    GENERAL_INFORMATION_NAME } = require('./constants');
+    GENERAL_INFORMATION_NAME,
+    PARTICLE_NAMES } = require('./constants');
 
 const {StmdWriter} = require('./stmd_writer');
 
@@ -1024,9 +1025,11 @@ exports.StmdReader = class StmdReader {
     }
 
     /**
-     * Find all Rational Tag location
+     * Returns all particle locations where cdk:Credibility elements are contained
+     * 
+     * @returns {string[][]}
      */
-    findAllParticleLocation(particleName) {
+    getAllCredibilityLocations() {
         let locationList = [];
         let phaseRawParsed, stepRawParsed, currentLocation;
 
@@ -1036,20 +1039,21 @@ exports.StmdReader = class StmdReader {
             phaseRawParsed = this.#stmdRawParsed[ROOT_ELEMENT_NAME][phase];
             if (phaseRawParsed === undefined) continue;
 
-            currentLocation = [ROOT_ELEMENT_NAME, phase];
-            this.#addLinks(phaseRawParsed, currentLocation);
-
             // loop through all steps of a phase (stmd:DefineModelRequirements, stmd:DefineParameterRequirements, ...)
             const stmdStepNames = Object.keys(PHASE_TREE[ROOT_ELEMENT_NAME][phase]);
             for (let step of stmdStepNames) {
                 stepRawParsed = phaseRawParsed[step];
                 if (stepRawParsed === undefined) continue;
-                if (stepRawParsed[particleName] == undefined) continue;
-                currentLocation = [ROOT_ELEMENT_NAME, phase, step, particleName];
-                // this.#addLinks(stepRawParsed, currentLocation);
-                locationList.push(currentLocation)
+                
+                for (let particleName of Object.keys(PARTICLE_NAMES)) {
+                    currentLocation = [ROOT_ELEMENT_NAME, phase, step, particleName];
+                    let possibleCdkElement = this.getCdkElement(currentLocation);
+                    if (possibleCdkElement.Processing.length > 0 || possibleCdkElement.Evidence.length > 0)
+                        locationList.push(currentLocation);
+                }
             }
         }
+        
         return locationList;
     }
 }
