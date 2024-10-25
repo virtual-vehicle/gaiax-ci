@@ -30,7 +30,7 @@ if (stmdString === undefined)
 // the locations are given as string arrays like
 // ["stmd:SimulationTaskMetaData", "stmd:ImplementationPhase", "stmd:ImplementModel", "stc:Rationale"]
 let stmdCrud = new StmdCrud(stmdString);
-var stmdRationales = stmdCrud.findAllParticleLocation("stc:Rationale")
+var stmdRationales = stmdCrud.getAllCredibilityLocations();
 
 // create one workflow for each Rationale of a process phase
 var count = 0;
