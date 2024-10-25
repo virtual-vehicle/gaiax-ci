@@ -1,8 +1,0 @@
-[
-    {
-        "result": true,
-        "log": "The modelDescription of the FMU is error-free.",
-        "level": "1",
-        "id": "implementation_fmu_modeldesc_test"
-    }
-]
