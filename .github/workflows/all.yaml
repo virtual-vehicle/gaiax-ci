@@ -43,10 +43,10 @@ jobs:
           git commit -m "Add results [actions skip]"
           git push
   No_0_RequirementsPhase_DefineModelRequirements:
-    uses: virtual-vehicle/gaiax-ci/.github/workflows/No.0.RequirementsPhase.DefineModelRequirements.yaml@1-make-pipeline-look-for-cdk-elements-in-all-particles-not-only-in-stcrationale
+    uses: virtual-vehicle/gaiax-ci/.github/workflows/No.0.RequirementsPhase.DefineModelRequirements.yaml@main
     secrets:
       WRITE_WORKFLOW: ${{secrets.WRITE_WORKFLOW}}
   No_1_ImplementationPhase_ImplementModel:
-    uses: virtual-vehicle/gaiax-ci/.github/workflows/No.1.ImplementationPhase.ImplementModel.yaml@1-make-pipeline-look-for-cdk-elements-in-all-particles-not-only-in-stcrationale
+    uses: virtual-vehicle/gaiax-ci/.github/workflows/No.1.ImplementationPhase.ImplementModel.yaml@main
     secrets:
       WRITE_WORKFLOW: ${{secrets.WRITE_WORKFLOW}}
